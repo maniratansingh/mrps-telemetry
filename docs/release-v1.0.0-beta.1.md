@@ -40,6 +40,18 @@ mrps-telemetry status
 mrps-telemetry url
 ```
 
+## Navigation and mobile
+
+- The section nav is a static segmented bar under the header, not a floating
+  sticky pill. It never covers a chart or a panel; the top bar scrolls with the page.
+- On phones the active item is centred automatically, edges fade to show more
+  items, and the theme control is 40 px.
+- Mobile CPU detail is collapsed by default; stat rows use two columns; labels no
+  longer truncate; chart helper text is hidden; the status card is opaque enough
+  to read over the aurora.
+- Tables keep their columns and fade at the right edge to indicate horizontal
+  scrolling.
+
 ## Navigation header
 
 The section pill is now a full-width glass header. When it sticks, it covers the

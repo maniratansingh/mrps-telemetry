@@ -18,7 +18,15 @@ const SECTIONS = [
 
 export function TelemetrySectionNav() {
   const [active, setActive] = React.useState("overview");
-  const [stuck, setStuck] = React.useState(false);
+
+  React.useEffect(() => {
+    const inner = document.querySelector<HTMLElement>(".tm-section-nav-inner");
+    const link = inner?.querySelector<HTMLElement>('.tm-section-link[data-active="true"]');
+    if (!inner || !link) return;
+
+    const left = link.offsetLeft - (inner.clientWidth - link.clientWidth) / 2;
+    inner.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [active]);
 
   React.useEffect(() => {
     let frame = 0;
@@ -26,9 +34,7 @@ export function TelemetrySectionNav() {
     const update = () => {
       frame = 0;
       const nav = document.querySelector(".tm-section-nav");
-      const navRect = nav?.getBoundingClientRect();
-      const offset = (navRect?.bottom ?? 140) + 64;
-      setStuck(Boolean(navRect && navRect.top <= 96));
+      const offset = (nav?.getBoundingClientRect().bottom ?? 140) + 32;
       let current = SECTIONS[0].id;
 
       for (const section of SECTIONS) {
@@ -56,7 +62,7 @@ export function TelemetrySectionNav() {
   }, []);
 
   return (
-    <nav className="tm-section-nav" data-stuck={stuck} aria-label="Telemetry sections">
+    <nav className="tm-section-nav" aria-label="Telemetry sections">
       <div className="tm-section-nav-inner scrollbar-none">
         {SECTIONS.map((section) => (
           <a

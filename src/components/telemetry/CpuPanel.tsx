@@ -30,8 +30,8 @@ export function CpuPanel({ host, snapshot, history }: CpuPanelProps) {
   const [detailOpen, setDetailOpen] = React.useState(true);
 
   React.useEffect(() => {
-    const query = window.matchMedia("(min-width: 1600px)");
-    const update = () => setDetailOpen(!query.matches);
+    const query = window.matchMedia("(min-width: 700px) and (max-width: 1599px)");
+    const update = () => setDetailOpen(query.matches);
     update();
     query.addEventListener("change", update);
     return () => query.removeEventListener("change", update);
