@@ -64,7 +64,7 @@ export function DiskPanel({ snapshot, history }: DiskPanelProps) {
         <Stat label="Peak in view" value={formatDiskRate(Math.max(seriesPeak(readHistory), seriesPeak(writeHistory)))} hint="read or write" />
       </div>
 
-      <div className="tm-table-shell tm-table-shell-compact">
+      <div className="tm-table-shell tm-table-shell-compact" tabIndex={0} role="region" aria-label="Disk devices">
         <table className="tm-table tm-disk-table">
           <thead>
             <tr>

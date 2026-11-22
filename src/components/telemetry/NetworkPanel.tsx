@@ -94,7 +94,7 @@ export function NetworkPanel({ snapshot, history }: NetworkPanelProps) {
         </div>
 
         {showTable ? (
-        <div className="tm-table-shell">
+        <div className="tm-table-shell" tabIndex={0} role="region" aria-label="Network interfaces">
           {interfaces.length > 0 ? (
             <table className="tm-table tm-network-table">
               <thead>

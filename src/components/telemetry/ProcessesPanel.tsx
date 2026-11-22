@@ -88,7 +88,7 @@ export function ProcessesPanel({ snapshot }: ProcessesPanelProps) {
       </div>
 
       {sorted.length > 0 ? (
-        <div className="tm-table-shell">
+        <div className="tm-table-shell" tabIndex={0} role="region" aria-label="Process list">
           <table className="tm-table tm-process-table">
             <thead>
               <tr>

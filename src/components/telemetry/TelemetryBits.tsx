@@ -79,12 +79,12 @@ export function RadialGauge({
     <span
       className={`tm-gauge ${className}`.trim()}
       style={{ width: size, height: size }}
-      role="meter"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
+      role={safe === null ? "img" : "meter"}
+      aria-label={safe === null ? `${label}: unavailable` : label}
+      aria-valuemin={safe === null ? undefined : 0}
+      aria-valuemax={safe === null ? undefined : 100}
       aria-valuenow={safe === null ? undefined : Math.round(safe)}
-      aria-valuetext={safe === null ? "Unavailable" : `${safe.toFixed(1)} percent`}
+      aria-valuetext={safe === null ? undefined : `${safe.toFixed(1)} percent`}
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
         <circle
