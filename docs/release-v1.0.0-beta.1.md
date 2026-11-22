@@ -40,6 +40,13 @@ mrps-telemetry status
 mrps-telemetry url
 ```
 
+## Layout fix
+
+The Storage panel had been placed in an eight-column cell whose CSS class did
+not exist, so it collapsed to a single grid column and wrapped vertically. The
+span is defined now, and the compact layout starts at 1600 px so a 4K display at
+200% scaling (1920 CSS px) gets the dense layout too.
+
 ## 4K real-time hierarchy
 
 - Compact hero and a three-card pulse strip; each of CPU, GPU and memory has its

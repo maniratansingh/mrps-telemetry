@@ -77,7 +77,7 @@ export function TelemetryChart({
   const [largeDisplay, setLargeDisplay] = React.useState(false);
 
   React.useEffect(() => {
-    const query = window.matchMedia("(min-width: 2000px)");
+    const query = window.matchMedia("(min-width: 1600px)");
     const update = () => setLargeDisplay(query.matches);
     update();
     query.addEventListener("change", update);

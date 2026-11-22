@@ -706,6 +706,7 @@
 .tm-col-4,
 .tm-col-5,
 .tm-col-7,
+.tm-col-8,
 .tm-col-12 {
   display: flex;
   min-width: 0;
@@ -719,6 +720,9 @@
 .tm-col-7 {
   grid-column: span 7;
 }
+.tm-col-8 {
+  grid-column: span 8;
+}
 .tm-col-12 {
   grid-column: span 12;
 }
@@ -726,6 +730,7 @@
 .tm-col-4 > .tm-panel,
 .tm-col-5 > .tm-panel,
 .tm-col-7 > .tm-panel,
+.tm-col-8 > .tm-panel,
 .tm-col-12 > .tm-panel {
   flex: 1;
 }
@@ -2282,7 +2287,8 @@
 @media (max-width: 1100px) {
   .tm-col-4,
   .tm-col-5,
-  .tm-col-7 {
+  .tm-col-7,
+  .tm-col-8 {
     grid-column: span 12;
   }
 
@@ -2829,7 +2835,7 @@
 }
 
 /* 4K / large desktop: use the panel, scale type and charts */
-@media (min-width: 2000px) {
+@media (min-width: 1600px) {
   html {
     font-size: 18px;
   }
