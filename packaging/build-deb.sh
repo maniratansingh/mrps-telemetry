@@ -48,16 +48,12 @@ cp -a "$SRC_API/node_modules" "$STAGE/opt/$PKG/api/node_modules"
 
 # Dashboard (static build + same-origin proxy)
 cp -a "$SRC_WEB/dist" "$STAGE/opt/$PKG/web/dist"
-cp -a "$SRC_WEB/server" "$STAGE/opt/$PKG/web/server"
-rm -rf "$STAGE/opt/$PKG/web/server/node_modules" || true
 
 # systemd units
 cp -a "$PACKAGING/systemd/mrps-telemetry-api.service" "$STAGE/usr/lib/systemd/system/"
-cp -a "$PACKAGING/systemd/mrps-telemetry-web.service" "$STAGE/usr/lib/systemd/system/"
 
 # Configuration
 cp -a "$PACKAGING/default/mrps-telemetry-api" "$STAGE/etc/default/"
-cp -a "$PACKAGING/default/mrps-telemetry-web" "$STAGE/etc/default/"
 
 # CLI
 cp -a "$PACKAGING/mrps-telemetry" "$STAGE/usr/bin/mrps-telemetry"
@@ -84,7 +80,6 @@ chmod 0755 "$STAGE/DEBIAN/postinst" "$STAGE/DEBIAN/prerm" "$STAGE/DEBIAN/postrm"
 
 cat > "$STAGE/DEBIAN/conffiles" <<'EOF'
 /etc/default/mrps-telemetry-api
-/etc/default/mrps-telemetry-web
 EOF
 
 SIZE="$(du -sk "$STAGE" | cut -f1)"

@@ -2,7 +2,6 @@
 set -e
 
 if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
-  systemctl disable mrps-telemetry-web.service >/dev/null 2>&1 || true
   systemctl disable mrps-telemetry-api.service >/dev/null 2>&1 || true
 fi
 

@@ -1,11 +1,11 @@
 [Unit]
-Description=Serve the local MRPS APT repository (Node)
+Description=Serve the local MRPS APT repository (Go)
 After=network-online.target
 
 [Service]
 Type=simple
 WorkingDirectory=%h/apt-repo-server
-ExecStart=%h/nodejs/bin/node %h/apt-repo-server/repo-server.mjs
+ExecStart=%h/apt-repo-server/mrps-repo
 Environment=PORT=8090
 Environment=ROOT=%h/apt-repo
 Restart=always

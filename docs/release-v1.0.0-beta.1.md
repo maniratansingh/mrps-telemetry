@@ -62,8 +62,8 @@ as zero.
 
 ## What is inside
 
-- API on `:43871` — GET-only JSON, SSE stream, 500 ms sampling.
-- Dashboard on `:4310` — static UI plus same-origin `/api` proxy.
+- One process: API on `:43871` and dashboard on `:4310`, same origin, no proxy.
+- GET-only JSON, SSE stream, 500 ms sampling.
 - APT repository on `:8090` — signed `InRelease` / `Release.gpg`.
 - Capability detection: platform/arch, Raspberry Pi model, CPU vendor and threads,
   GPU vendor/model/driver (NVIDIA first, DRM/PCI fallback), SMART tool and reported

@@ -1,4 +1,0 @@
-# MRPS telemetry dashboard configuration
-# Edit then run: systemctl restart mrps-telemetry-web
-PORT=4310
-API_ORIGIN=http://127.0.0.1:43871

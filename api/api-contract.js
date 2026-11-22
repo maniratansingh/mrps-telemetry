@@ -84,21 +84,37 @@ function deviceKind(device) {
   return 'ssd';
 }
 
+const networkKindCache = new Map();
+const interfaceCache = new Map();
+let addressCache = { at: 0, value: null };
+
 function networkKind(name) {
-  if (name === 'lo') return 'loopback';
-  if (fs.existsSync(`/sys/class/net/${name}/wireless`)) return 'wifi';
-  if (/^(docker|veth|br-|virbr|tailscale|wg|tun|tap|zt|podman)/i.test(name)) {
-    return 'virtual';
+  const hit = networkKindCache.get(name);
+  if (hit && Date.now() - hit.at < 30000) return hit.value;
+
+  let value = 'ethernet';
+  if (name === 'lo') value = 'loopback';
+  else if (fs.existsSync(`/sys/class/net/${name}/wireless`)) value = 'wifi';
+  else if (/^(docker|veth|br-|virbr|tailscale|wg|tun|tap|zt|podman)/i.test(name)) {
+    value = 'virtual';
   }
-  return 'ethernet';
+
+  networkKindCache.set(name, { at: Date.now(), value });
+  return value;
 }
 
 function networkAddresses() {
-  const result = os.networkInterfaces();
-  return result || {};
+  const now = Date.now();
+  if (!addressCache.value || now - addressCache.at > 5000) {
+    addressCache = { at: now, value: os.networkInterfaces() || {} };
+  }
+  return addressCache.value;
 }
 
 function interfaceDetails(name) {
+  const hit = interfaceCache.get(name);
+  if (hit && Date.now() - hit.at < 5000) return hit.value;
+
   const all = networkAddresses();
   const addresses = all[name] || [];
   const ipv4 = addresses.find(a => a.family === 'IPv4' || a.family === 4);
@@ -106,17 +122,27 @@ function interfaceDetails(name) {
   const mac = addresses.find(a => a.mac && a.mac !== '00:00:00:00:00:00');
 
   const speedRaw = Number(read(`/sys/class/net/${name}/speed`));
-  return {
+  const value = {
     ipv4: ipv4 ? ipv4.address : null,
     ipv6: ipv6 ? ipv6.address : null,
     mac: mac ? mac.mac : read(`/sys/class/net/${name}/address`),
     speedMbps: Number.isFinite(speedRaw) && speedRaw > 0 ? speedRaw : undefined
   };
+
+  interfaceCache.set(name, { at: Date.now(), value });
+  return value;
 }
 
+let processCountCache = { at: 0, value: null };
+
 function processCount() {
+  const now = Date.now();
+  if (now - processCountCache.at < 2000) return processCountCache.value;
+
   try {
-    return fs.readdirSync('/proc').filter(name => /^\d+$/.test(name)).length;
+    const value = fs.readdirSync('/proc').filter(name => /^\d+$/.test(name)).length;
+    processCountCache = { at: now, value };
+    return value;
   } catch {
     return null;
   }

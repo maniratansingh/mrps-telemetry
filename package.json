@@ -8,7 +8,9 @@
     "dev": "vite --host 0.0.0.0 --port 4310",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0 --port 4310",
-    "build:server": "VITE_TELEMETRY_API_BASE_URL=same-origin npm run build"
+    "build:server": "VITE_TELEMETRY_API_BASE_URL=same-origin npm run build",
+    "serve": "node api/index.js",
+    "api": "node api/index.js"
   },
   "dependencies": {
     "framer-motion": "^14.8.0",

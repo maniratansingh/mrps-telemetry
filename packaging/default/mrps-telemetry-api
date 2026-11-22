@@ -2,4 +2,5 @@
 # Edit then run: systemctl restart mrps-telemetry-api
 PORT=43871
 HOST=0.0.0.0
+WEB_PORT=4310
 SAMPLE_INTERVAL_MS=500

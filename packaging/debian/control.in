@@ -10,7 +10,7 @@ Maintainer: Mani Ratan Pratap Singh <email@mrps.in>
 Homepage: https://mrps.in
 Description: MRPS live server telemetry API and dashboard
  A read-only Linux telemetry collector, HTTP API and Liquid Glass web
- dashboard, packaged together as a single service pair.
+ dashboard, packaged as one service and one process.
  .
  The API samples CPU, memory, GPU, thermal, storage, SMART, disk, network,
  processes, WireGuard and Tailscale data once per second and exposes it over

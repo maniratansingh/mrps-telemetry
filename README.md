@@ -3,22 +3,21 @@
 **V1 beta** — release `v1.0.0-beta.1`. The Debian package version is `1.0.0~beta1`.
 
 A single, self-contained Linux telemetry product: a read-only collector/API and a
-Liquid Glass dashboard, installed as **one `.deb` package** and run as two systemd
-services on the same machine.
+Liquid Glass dashboard, installed as **one `.deb` package** and run as **one systemd service** and
+**one process** on the same machine.
 
 - API and dashboard install together, start together, and talk over loopback.
-- The browser only ever talks to the dashboard origin; the dashboard proxies
-  `/api/*` to the API. No CORS, no mixed content, no extra configuration.
+- The API process also serves the dashboard on the same origin, so `/api/*` needs no proxy, no CORS configuration and no second service.
 - Live updates use **Server-Sent Events** (SSE) pushed twice per second, with HTTP
   polling as an automatic fallback.
 - Everything is read-only. There are no control actions, no shell endpoints, no
   credential storage, and no simulated values.
 
 ```
-browser ──HTTP──► mrps-telemetry-web :4310 ──proxy──► mrps-telemetry-api :43871
-                         │                                   │
-                    static dist/                     /proc, /sys, smartctl,
-                                                     wg, tailscale, nvidia-smi
+browser ──HTTP──► one process :4310 (dashboard + /api/v1/*)
+                          │
+                          └── :43871 (API, same process)
+                                /proc, /sys, smartctl, wg, tailscale, nvidia-smi
 ```
 
 ## Install
@@ -173,12 +172,9 @@ redistributing the repo publicly.
 ## Repository layout
 
 ```
-api/          collector + Express API (GET only, SSE stream)
+api/          collector + HTTP API + static dashboard (one process)
 src/          dashboard source (React + Vite)
-server/       zero-dependency static server and /api proxy
-scripts/      ad-hoc start/stop and user-service installer
-packaging/    Debian control files, systemd units, build scripts
-deploy/       notes for the non-package deployment
+packaging/    Debian control files, systemd unit, build scripts, Go apt repo
 src/styles/  Liquid Glass design tokens and dashboard CSS
 ```
 

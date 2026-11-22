@@ -120,10 +120,12 @@ async function collect() {
       }
     }
 
-    const record = JSON.parse(JSON.stringify({
+    // Sections are replaced wholesale by the collectors, never mutated, so a
+    // shallow record is immutable and avoids a full deep clone twice a second.
+    const record = {
       timestamp: new Date().toISOString(),
       ...latest
-    }));
+    };
 
     history.push(record);
 

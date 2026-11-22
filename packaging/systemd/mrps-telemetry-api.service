@@ -10,6 +10,7 @@ ExecStart=/usr/bin/node /opt/mrps-telemetry/api/index.js
 WorkingDirectory=/opt/mrps-telemetry/api
 EnvironmentFile=-/etc/default/mrps-telemetry-api
 Environment=NODE_ENV=production
+Environment=WEB_ROOT=/opt/mrps-telemetry/web/dist
 Restart=always
 RestartSec=3
 

@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('node:http');
+const path = require('node:path');
 const {
   startCollector, getLatest, getHistory, SAMPLE_INTERVAL_MS
 } = require('./collector');
@@ -9,6 +11,8 @@ const {
 const app = express();
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 43871);
+const WEB_PORT = Number(process.env.WEB_PORT || 4310);
+const WEB_ROOT = process.env.WEB_ROOT || path.join(__dirname, '..', 'dist');
 
 app.disable('x-powered-by');
 app.set('trust proxy', false);
@@ -89,6 +93,10 @@ function buildLiveSnapshot() {
 }
 
 app.get('/', (req, res) => {
+  if (req.socket.localPort === WEB_PORT) {
+    return res.sendFile(path.join(WEB_ROOT, 'index.html'));
+  }
+
   const protocol = req.get('x-forwarded-proto') || req.protocol;
   const base = `${protocol}://${req.get('host')}`;
 
@@ -216,6 +224,29 @@ app.get('/api/v1/health', (req, res) => {
 
 require('./discovery')(app);
 
+app.get('/healthz', (req, res) => {
+  res.json({ status: 'ok', service: 'mrps-telemetry', api: PORT, dashboard: WEB_PORT });
+});
+
+// Serve the built dashboard from the same process. One process, two listeners:
+// the API port for programmatic access and the dashboard port for the browser.
+app.use(express.static(WEB_ROOT, {
+  index: false,
+  fallthrough: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.includes('/assets/')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(WEB_ROOT, 'index.html'));
+});
+
 app.use((req, res) => {
   res.status(404).json({
     status: 'error',
@@ -228,4 +259,8 @@ app.listen(PORT, HOST, () => {
   console.log(`Monitoring API listening on http://${HOST}:${PORT}`);
   console.log('API endpoints: /, /api/v1/health, /api/v1/host, /api/v1/snapshot, /api/v1/stream, /api/v1/history');
   console.log('Access: unauthenticated HTTP; GET only; listening on all interfaces');
+});
+
+http.createServer(app).listen(WEB_PORT, HOST, () => {
+  console.log(`Dashboard listening on http://${HOST}:${WEB_PORT} (static ${WEB_ROOT})`);
 });
