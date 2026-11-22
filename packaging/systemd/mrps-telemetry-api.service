@@ -1,0 +1,23 @@
+[Unit]
+Description=MRPS telemetry API (read-only)
+Documentation=https://mrps.in
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /opt/mrps-telemetry/api/index.js
+WorkingDirectory=/opt/mrps-telemetry/api
+EnvironmentFile=-/etc/default/mrps-telemetry-api
+Environment=NODE_ENV=production
+Restart=always
+RestartSec=3
+
+# The collectors need raw device access for SMART and netlink access for WireGuard.
+User=root
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

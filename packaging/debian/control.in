@@ -1,0 +1,20 @@
+Package: mrps-telemetry
+Version: @VERSION@
+Section: admin
+Priority: optional
+Architecture: all
+Installed-Size: @SIZE@
+Depends: nodejs (>= 18)
+Recommends: smartmontools, wireguard-tools
+Maintainer: Mani Ratan Pratap Singh <email@mrps.in>
+Homepage: https://mrps.in
+Description: MRPS live server telemetry API and dashboard
+ A read-only Linux telemetry collector, HTTP API and Liquid Glass web
+ dashboard, packaged together as a single service pair.
+ .
+ The API samples CPU, memory, GPU, thermal, storage, SMART, disk, network,
+ processes, WireGuard and Tailscale data once per second and exposes it over
+ GET-only JSON endpoints plus a Server-Sent Events stream.
+ .
+ The dashboard is served from the same host and proxies the API on the same
+ origin, so no CORS or mixed-content configuration is required.

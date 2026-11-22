@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+UNITS="mrps-telemetry-api.service mrps-telemetry-web.service"
+
+case "${1:-status}" in
+  status)
+    systemctl --no-pager status $UNITS
+    ;;
+  restart)
+    systemctl restart $UNITS
+    systemctl --no-pager --lines=0 status $UNITS
+    ;;
+  logs)
+    journalctl -u mrps-telemetry-api -u mrps-telemetry-web -f
+    ;;
+  url)
+    IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+    PORT="$(. /etc/default/mrps-telemetry-web 2>/dev/null; echo "${PORT:-4310}")"
+    echo "http://${IP:-127.0.0.1}:${PORT}/"
+    ;;
+  *)
+    echo "usage: mrps-telemetry [status|restart|logs|url]" >&2
+    exit 1
+    ;;
+esac

@@ -1,0 +1,27 @@
+{
+  "name": "mrps-telemetry",
+  "private": true,
+  "version": "1.0.0-beta.1",
+  "type": "module",
+  "description": "Standalone, read-only live telemetry dashboard for the MRPS Ubuntu server.",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 4310",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4310",
+    "build:server": "VITE_TELEMETRY_API_BASE_URL=same-origin npm run build"
+  },
+  "dependencies": {
+    "framer-motion": "^14.8.0",
+    "lucide-react": "^1.64.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0"
+  }
+}

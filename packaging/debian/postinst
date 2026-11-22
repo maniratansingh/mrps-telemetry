@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+
+systemctl daemon-reload
+
+# Enable but never fail the package install if a port is still occupied.
+systemctl enable mrps-telemetry-api.service >/dev/null 2>&1 || true
+systemctl enable mrps-telemetry-web.service >/dev/null 2>&1 || true
+systemctl restart mrps-telemetry-api.service >/dev/null 2>&1 || true
+systemctl restart mrps-telemetry-web.service >/dev/null 2>&1 || true
+
+PORT_API="$(. /etc/default/mrps-telemetry-api 2>/dev/null; echo "${PORT:-43871}")"
+PORT_WEB="$(. /etc/default/mrps-telemetry-web 2>/dev/null; echo "${PORT:-4310}")"
+
+if systemctl is-active --quiet mrps-telemetry-api.service; then
+  echo "mrps-telemetry: API listening on port ${PORT_API}"
+else
+  echo "mrps-telemetry: API failed to start. Check: journalctl -u mrps-telemetry-api" >&2
+  echo "mrps-telemetry: if an old API is running on ${PORT_API}, stop it and run: systemctl restart mrps-telemetry-api" >&2
+fi
+
+if systemctl is-active --quiet mrps-telemetry-web.service; then
+  IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+  echo "mrps-telemetry: dashboard at http://${IP:-127.0.0.1}:${PORT_WEB}"
+  echo "mrps-telemetry: manage with: mrps-telemetry status|logs|restart|url"
+else
+  echo "mrps-telemetry: dashboard failed to start. Check: journalctl -u mrps-telemetry-web" >&2
+fi
+
+exit 0

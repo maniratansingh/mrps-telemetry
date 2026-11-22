@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0b0e" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="description"
+      content="A live, read-only view of the MRPS Ubuntu server: processor, graphics, memory, thermal, storage, network, processes, WireGuard and Tailscale."
+    />
+    <title>Live Server Telemetry — MRPS</title>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        try {
+          const stored = localStorage.getItem("theme");
+          if (stored === "light") {
+            root.classList.remove("dark");
+            root.classList.add("light");
+          } else {
+            root.classList.remove("light");
+            root.classList.add("dark");
+          }
+        } catch {
+          root.classList.add("dark");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,174 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Linux Telemetry API",
+    "version": "1.0.0",
+    "description": "Read-only monitoring API for a Linux server. Provides CPU, memory, GPU, thermal, storage, disk, network, process, SMART, WireGuard and Tailscale telemetry. No authentication is currently required. GET operations only."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Same origin as this OpenAPI document"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "API directory",
+        "description": "Existing JSON API directory.",
+        "responses": {
+          "200": {
+            "description": "API directory JSON"
+          }
+        }
+      }
+    },
+    "/api-index.json": {
+      "get": {
+        "summary": "Machine-readable API index",
+        "responses": {
+          "200": {
+            "description": "Endpoint directory JSON"
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "OpenAPI specification",
+        "responses": {
+          "200": {
+            "description": "This editable OpenAPI document"
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "summary": "Health",
+        "responses": {
+          "200": {
+            "description": "API health response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/host": {
+      "get": {
+        "summary": "Host information",
+        "responses": {
+          "200": {
+            "description": "Host and operating system information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/snapshot": {
+      "get": {
+        "summary": "Current telemetry snapshot",
+        "description": "Combined current telemetry from the existing monitoring collectors. Inspect the actual response for field names, units and availability.",
+        "responses": {
+          "200": {
+            "description": "Combined telemetry JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/history": {
+      "get": {
+        "summary": "Recent telemetry history",
+        "parameters": [
+          {
+            "name": "seconds",
+            "in": "query",
+            "required": false,
+            "description": "Requested history lookback in seconds.",
+            "schema": {
+              "type": "integer",
+              "default": 120,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historical telemetry JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stream": {
+      "get": {
+        "summary": "Live telemetry stream",
+        "description": "Server-sent events (text/event-stream). Pushes a new snapshot whenever the collector produces a sample (1s cadence).",
+        "responses": {
+          "200": {
+            "description": "SSE stream of snapshot objects",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-telemetry-collectors": [
+    "CPU",
+    "Memory",
+    "System",
+    "NVIDIA GPU",
+    "Thermal sensors",
+    "Storage",
+    "Disk I/O",
+    "Network",
+    "Processes",
+    "SMART",
+    "WireGuard",
+    "Tailscale"
+  ],
+  "x-history-retention": "Up to 120 samples in memory; resets when the API restarts.",
+  "x-access": {
+    "authentication": "none",
+    "methods": [
+      "GET",
+      "OPTIONS"
+    ],
+    "readOnly": true
+  }
+}
