@@ -631,10 +631,13 @@ function buildSnapshot(data) {
   const interfaces = (rawNetwork.interfaces || []).map(item => {
     const kind = networkKind(item.name);
     const details = interfaceDetails(item.name);
+    const vpnLike = /^(wg|tailscale|tun|tap)/i.test(item.name);
+    const hasVpnTraffic = (item.rx_bytes || 0) + (item.tx_bytes || 0) > 0;
+
     return {
       name: item.name,
       kind,
-      state: item.state === 'up' ? 'up' : 'down',
+      state: item.state === 'up' || (vpnLike && (details.ipv4 || hasVpnTraffic)) ? 'up' : 'down',
       ipv4: details.ipv4,
       ipv6: details.ipv6,
       mac: details.mac,

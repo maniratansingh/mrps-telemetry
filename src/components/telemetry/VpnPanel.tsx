@@ -43,7 +43,15 @@ export function VpnPanel({ snapshot }: { snapshot: Snapshot }) {
         {wireguard.interfaces.length > 0 ? (
           <>
             <div className="tm-stat-row tm-stat-row-three">
-              <Stat label="Interface" value={wireguard.interfaces[0].name} />
+              <Stat
+                label="Interface"
+                value={wireguard.interfaces[0].name}
+                hint={
+                  snapshot.network.interfaces.find(
+                    (entry) => entry.name === wireguard.interfaces[0].name,
+                  )?.ipv4 ?? "no address reported"
+                }
+              />
               <Stat label="Port" value={formatNumber(wireguard.interfaces[0].listeningPort)} />
               <Stat label="Peers" value={formatNumber(wireguard.interfaces[0].peerCount)} />
             </div>

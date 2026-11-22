@@ -16,7 +16,7 @@ interface NetworkPanelProps {
 }
 
 export function NetworkPanel({ snapshot, history }: NetworkPanelProps) {
-  const [showAll, setShowAll] = React.useState(false);
+  const [showAll, setShowAll] = React.useState(true);
   const timestamps = historyTimestamps(history);
   const rxHistory = historyValues(history, "rx");
   const txHistory = historyValues(history, "tx");

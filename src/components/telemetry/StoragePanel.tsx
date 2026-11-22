@@ -1,4 +1,4 @@
-import { HardDrive, ShieldCheck, TriangleAlert } from "lucide-react";
+import { HardDrive, ShieldCheck } from "lucide-react";
 import type { Snapshot } from "@/lib/telemetry/types";
 import type { SmartDevice } from "@/lib/telemetry/types";
 import {
@@ -125,7 +125,7 @@ export function StoragePanel({ snapshot }: StoragePanelProps) {
                   </p>
                 </div>
                 <span className={`tm-smart-pill ${healthUnavailable ? "tm-smart-unavailable" : ""}`}>
-                  {healthUnavailable ? "SMART n/a" : smart?.health ?? device.smartStatus}
+                  {healthUnavailable ? "SMART unsupported" : smart?.health ?? device.smartStatus}
                 </span>
               </div>
 
@@ -165,9 +165,9 @@ export function StoragePanel({ snapshot }: StoragePanelProps) {
               ) : null}
 
               {healthUnavailable ? (
-                <p className="tm-smart-error">
-                  <TriangleAlert size={13} strokeWidth={1.8} aria-hidden="true" />
-                  {smart?.error ?? "SMART health is unavailable for this device."}
+                <p className="tm-smart-note">
+                  SMART is not exposed by this device&apos;s USB bridge. Capacity, mounts and I/O
+                  remain live; no SMART values are inferred.
                 </p>
               ) : null}
 
@@ -193,15 +193,17 @@ export function StoragePanel({ snapshot }: StoragePanelProps) {
                 </p>
               ) : null}
 
-              <details className="tm-smart-details">
-                <summary>
-                  <span>
-                    <ShieldCheck size={13} strokeWidth={1.8} aria-hidden="true" /> SMART detail
-                  </span>
-                  <span className="tm-mono">{soundSmartLabel(device.smartStatus)}</span>
-                </summary>
-                <SmartFields device={smart} />
-              </details>
+              {!healthUnavailable ? (
+                <details className="tm-smart-details">
+                  <summary>
+                    <span>
+                      <ShieldCheck size={13} strokeWidth={1.8} aria-hidden="true" /> SMART detail
+                    </span>
+                    <span className="tm-mono">{soundSmartLabel(device.smartStatus)}</span>
+                  </summary>
+                  <SmartFields device={smart} />
+                </details>
+              ) : null}
             </article>
           );
         })}

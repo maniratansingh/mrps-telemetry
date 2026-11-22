@@ -50,6 +50,18 @@ mrps-telemetry url
   wider hero; no horizontal overflow at 3840×2160.
 - One process serves the dashboard and the API; the apt repository is a Go binary.
 
+## GPU, SMART and WireGuard clarity
+
+- GPU panel states when power draw is not exposed by the driver instead of leaving
+  a bare dash; VRAM, controller utilisation, clocks and fan state are explicit.
+- A disk whose USB bridge cannot pass SMART is labelled **SMART unsupported** with
+  a human explanation; the raw `INQUIRY failed` is no longer shown as an error.
+  Capacity and I/O remain visible.
+- WireGuard shows interface, listen port, peer handshake and transfer; the missing
+  interface address is stated rather than left blank.
+- All network interfaces are shown by default, and VPN interfaces are marked active
+  when they have traffic even if the kernel reports `operstate` as down.
+
 ## Readiness, not guesswork
 
 The dashboard's **System → System readiness** section lists every feature as

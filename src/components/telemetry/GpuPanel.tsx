@@ -85,14 +85,20 @@ export function GpuPanel({ host, snapshot, history }: GpuPanelProps) {
           label="Power"
           value={gpu.powerWatts === null ? "—" : formatNumber(gpu.powerWatts, 1)}
           unit={gpu.powerWatts === null ? undefined : "W"}
-          hint={gpu.powerWatts === null ? "not reported" : "instantaneous"}
+          hint={gpu.powerWatts === null ? "not exposed by driver" : "instantaneous"}
         />
         <Stat
           label="Fan"
           value={gpu.fanPercent === null ? "—" : formatPercent(gpu.fanPercent, 0)}
-          hint={gpu.fanPercent === null ? "not reported" : "reported by driver"}
+          hint={gpu.fanPercent === null ? "not reported" : gpu.fanPercent === 0 ? "0% · fan stop" : "reported by driver"}
         />
       </div>
+
+      {gpu.powerWatts === null ? (
+        <p className="tm-inline-note">
+          Power draw is not exposed by this driver (nvidia-smi returns N/A). It is not zero.
+        </p>
+      ) : null}
 
       <div className="tm-vram">
         <div className="tm-subsection-head">
