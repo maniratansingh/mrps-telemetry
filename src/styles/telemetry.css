@@ -2827,3 +2827,37 @@
     gap: 0.5rem;
   }
 }
+
+/* 4K / large desktop: use the panel, scale type and charts */
+@media (min-width: 2000px) {
+  html {
+    font-size: 18px;
+  }
+
+  .tm-shell {
+    max-width: 3000px;
+    width: 96%;
+    padding-top: 9.5rem;
+  }
+
+  .tm-hero-top {
+    grid-template-columns: minmax(0, 1fr) 24rem;
+    gap: 3rem;
+  }
+
+  .tm-hero-title {
+    font-size: clamp(4.5rem, 5.4vw, 7.5rem);
+  }
+
+  .tm-hero-subtitle {
+    max-width: 52rem;
+  }
+
+  .tm-vital {
+    min-height: 8.8rem;
+  }
+
+  .tm-panel {
+    padding: 1.5rem;
+  }
+}

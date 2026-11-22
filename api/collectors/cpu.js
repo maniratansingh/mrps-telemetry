@@ -1,6 +1,6 @@
 const fs = require('node:fs/promises');
 
-let previous = null;
+let readings = [];
 
 function parseCpuLine(line) {
   const values = line.trim().split(/\s+/);
@@ -53,11 +53,24 @@ async function collectCpu() {
       .filter(line => /^cpu(?:\d+)?\s/.test(line))
       .map(parseCpuLine);
 
-    const old = previous;
-    previous = current;
+    const now = Date.now();
+    readings.push({ at: now, lines: current });
+    while (readings.length > 4) readings.shift();
 
     if (!current.length) {
       throw new Error('No CPU counters found');
+    }
+
+    // Compare against a reading close to one second old. A 500 ms delta
+    // includes the collector's own short bursts and makes the graph pulse.
+    let old = null;
+    let best = Infinity;
+    for (const reading of readings) {
+      const distance = Math.abs((now - reading.at) - 1000);
+      if (reading.at < now - 200 && distance < best) {
+        best = distance;
+        old = reading.lines;
+      }
     }
 
     const aggregate = calculate(current[0], old?.[0]);

@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import { useElementSize } from "@/hooks/useElementSize";
 import {
   areaPath,
@@ -63,7 +62,7 @@ function buildSegments(
 export function TelemetryChart({
   series,
   timestamps,
-  height = 220,
+  height: heightProp = 220,
   min = 0,
   max = "auto",
   unit,
@@ -75,8 +74,18 @@ export function TelemetryChart({
   className = "",
 }: TelemetryChartProps) {
   const [ref, width] = useElementSize<HTMLDivElement>();
+  const [largeDisplay, setLargeDisplay] = React.useState(false);
+
+  React.useEffect(() => {
+    const query = window.matchMedia("(min-width: 2000px)");
+    const update = () => setLargeDisplay(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
+  const height = largeDisplay ? Math.round(heightProp * 1.45) : heightProp;
   const [hoverIndex, setHoverIndex] = React.useState<number | null>(null);
-  const prefersReducedMotion = useReducedMotion();
   const gradientId = React.useId().replace(/:/g, "");
   const count = timestamps.length;
   const lastTimestamp = count > 0 ? timestamps[count - 1] : 0;
@@ -141,7 +150,6 @@ export function TelemetryChart({
 
   const hoverX = hoverIndex !== null ? xForTimestamp(timestamps[hoverIndex]) : 0;
   const tooltipLeft = Math.min(Math.max(hoverX, 90), Math.max(90, width - 90));
-  const animationDuration = prefersReducedMotion ? 0.001 : 0.7;
 
   return (
     <div className={`tm-chart ${className}`.trim()} ref={ref}>
@@ -218,15 +226,12 @@ export function TelemetryChart({
                 entry.segments.map((segment) => (
                   <React.Fragment key={`${entry.id}-area-${segment.startIndex}`}>
                     {entry.area !== false ? (
-                      <motion.path
+                      <path
                         d={areaPath(segment.points, PAD.top + plotHeight)}
                         fill={`url(#tm-area-${gradientId}-${seriesIndex})`}
-                        initial={false}
-                        animate={{ d: areaPath(segment.points, PAD.top + plotHeight) }}
-                        transition={{ duration: animationDuration, ease: "linear" }}
                       />
                     ) : null}
-                    <motion.path
+                    <path
                       d={linePath(segment.points)}
                       fill="none"
                       stroke={entry.color}
@@ -234,9 +239,6 @@ export function TelemetryChart({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeDasharray={entry.dashed ? "4 4" : undefined}
-                      initial={false}
-                      animate={{ d: linePath(segment.points) }}
-                      transition={{ duration: animationDuration, ease: "linear" }}
                     />
                   </React.Fragment>
                 )),

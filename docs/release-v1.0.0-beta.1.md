@@ -40,6 +40,16 @@ mrps-telemetry status
 mrps-telemetry url
 ```
 
+## Chart and display fixes
+
+- Removed per-frame SVG `d` interpolation; charts now update in discrete steps
+  instead of morphing between shapes every 500 ms.
+- CPU utilisation is measured over a 1-second window, so the monitor's own short
+  bursts no longer create the "audio waveform" effect.
+- 4K-ready layout: 3000 px working width, 18 px root type, taller charts and a
+  wider hero; no horizontal overflow at 3840×2160.
+- One process serves the dashboard and the API; the apt repository is a Go binary.
+
 ## Readiness, not guesswork
 
 The dashboard's **System → System readiness** section lists every feature as
