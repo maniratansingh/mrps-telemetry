@@ -18,29 +18,45 @@ const SECTIONS = [
 
 export function TelemetrySectionNav() {
   const [active, setActive] = React.useState("overview");
+  const [stuck, setStuck] = React.useState(false);
 
   React.useEffect(() => {
-    const elements = SECTIONS.map((section) => document.getElementById(section.id)).filter(
-      (element): element is HTMLElement => Boolean(element),
-    );
-    if (elements.length === 0) return;
+    let frame = 0;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]?.target.id) setActive(visible[0].target.id);
-      },
-      { rootMargin: "-18% 0px -66% 0px", threshold: [0, 0.1, 0.5] },
-    );
+    const update = () => {
+      frame = 0;
+      const nav = document.querySelector(".tm-section-nav");
+      const navRect = nav?.getBoundingClientRect();
+      const offset = (navRect?.bottom ?? 140) + 64;
+      setStuck(Boolean(navRect && navRect.top <= 96));
+      let current = SECTIONS[0].id;
 
-    for (const element of elements) observer.observe(element);
-    return () => observer.disconnect();
+      for (const section of SECTIONS) {
+        const element = document.getElementById(section.id);
+        if (!element) continue;
+        if (element.getBoundingClientRect().top <= offset) current = section.id;
+      }
+
+      setActive(current);
+    };
+
+    const schedule = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   return (
-    <nav className="tm-section-nav" aria-label="Telemetry sections">
+    <nav className="tm-section-nav" data-stuck={stuck} aria-label="Telemetry sections">
       <div className="tm-section-nav-inner scrollbar-none">
         {SECTIONS.map((section) => (
           <a

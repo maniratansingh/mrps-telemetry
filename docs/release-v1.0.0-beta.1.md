@@ -40,6 +40,13 @@ mrps-telemetry status
 mrps-telemetry url
 ```
 
+## Navigation header
+
+The section pill is now a full-width glass header. When it sticks, it covers the
+strip above it as well, so content no longer shows behind the pill. The active
+section is computed from scroll position, not intersection ratio, so the section
+under the header is the one highlighted.
+
 ## Layout fix
 
 The Storage panel had been placed in an eight-column cell whose CSS class did
