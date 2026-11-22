@@ -1,10 +1,19 @@
 import { useState } from "react";
 import type { HistoryPoint } from "@/lib/telemetry/types";
 import { historyTimestamps, historyValues } from "@/lib/telemetry/history";
+import { formatPercent } from "@/lib/telemetry/format";
 import { TelemetryChart } from "@/components/telemetry/TelemetryChart";
 import { EmptyState } from "@/components/telemetry/TelemetryBits";
 
 type Range = "60" | "120";
+
+function currentValue(values: Array<number | null>): number | null {
+  for (let index = values.length - 1; index >= 0; index -= 1) {
+    const value = values[index];
+    if (value !== null && Number.isFinite(value)) return value;
+  }
+  return null;
+}
 
 export function TelemetryPulse({ history }: { history: HistoryPoint[] }) {
   const [range, setRange] = useState<Range>("120");
@@ -13,17 +22,34 @@ export function TelemetryPulse({ history }: { history: HistoryPoint[] }) {
     range === "120" ? history : history.filter((point) => point.t >= latest - 60_000);
 
   const timestamps = historyTimestamps(windowed);
-  const cpu = historyValues(windowed, "cpu");
-  const gpu = historyValues(windowed, "gpu");
-  const memory = historyValues(windowed, "memory");
+  const metrics = [
+    {
+      id: "cpu",
+      label: "CPU",
+      color: "var(--tm-cpu)",
+      values: historyValues(windowed, "cpu"),
+    },
+    {
+      id: "gpu",
+      label: "GPU",
+      color: "var(--tm-gpu)",
+      values: historyValues(windowed, "gpu"),
+    },
+    {
+      id: "memory",
+      label: "Memory",
+      color: "var(--tm-memory)",
+      values: historyValues(windowed, "memory"),
+    },
+  ];
 
   return (
     <section className="tm-pulse tm-anchor" id="pulse" aria-labelledby="pulse-title">
       <div className="tm-pulse-head">
         <div>
-          <span className="tm-kicker">Live signal</span>
+          <span className="tm-kicker">Real-time pulse</span>
           <h2 id="pulse-title" className="tm-pulse-title">
-            System pulse
+            Last two minutes
           </h2>
         </div>
         <div className="tm-pulse-tools">
@@ -36,26 +62,46 @@ export function TelemetryPulse({ history }: { history: HistoryPoint[] }) {
             </button>
           </div>
           <div className="tm-pulse-meta">
-            <span>CPU · GPU · MEMORY</span>
+            <span>500 ms stream</span>
             <span>Last {windowed.length} samples</span>
           </div>
         </div>
       </div>
 
       {windowed.length > 1 ? (
-        <TelemetryChart
-          series={[
-            { id: "cpu", label: "CPU", color: "var(--tm-cpu)", values: cpu },
-            { id: "gpu", label: "GPU", color: "var(--tm-gpu)", values: gpu },
-            { id: "memory", label: "Memory", color: "var(--tm-memory)", values: memory },
-          ]}
-          timestamps={timestamps}
-          height={230}
-          min={0}
-          unit="%"
-          showLegend
-          ariaLabel="CPU, GPU and memory utilisation history"
-        />
+        <div className="tm-pulse-grid">
+          {metrics.map((metric) => {
+            const current = currentValue(metric.values);
+            return (
+              <article className="tm-pulse-card" key={metric.id}>
+                <div className="tm-pulse-card-head">
+                  <span className="tm-pulse-card-label" style={{ color: metric.color }}>
+                    <i aria-hidden="true" />
+                    {metric.label}
+                  </span>
+                  <strong className="tm-mono">
+                    {current === null ? "—" : formatPercent(current)}
+                  </strong>
+                </div>
+                <TelemetryChart
+                  series={[
+                    {
+                      id: metric.id,
+                      label: metric.label,
+                      color: metric.color,
+                      values: metric.values,
+                    },
+                  ]}
+                  timestamps={timestamps}
+                  height={60}
+                  min={0}
+                  unit="%"
+                  ariaLabel={`${metric.label} utilisation history`}
+                />
+              </article>
+            );
+          })}
+        </div>
       ) : (
         <EmptyState
           compact

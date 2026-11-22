@@ -40,7 +40,7 @@ export function ThermalPanel({ snapshot, history }: ThermalPanelProps) {
   return (
     <TelemetryPanel
       id="thermal"
-      index="04"
+      index="06"
       title="Thermal"
       subtitle="Every temperature sensor returned by the host"
       meta={

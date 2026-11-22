@@ -100,6 +100,11 @@ export function TelemetryDashboard() {
         <TelemetryPulse history={history} />
 
         <div className="tm-wall">
+          <div className="tm-col-12 tm-group-label">
+            <span>Real-time</span>
+            <em>CPU · graphics · memory · network · disk I/O</em>
+            <i>500 ms stream</i>
+          </div>
           <div className="tm-col-7">
             <CpuPanel host={host} snapshot={snapshot} history={history} />
           </div>
@@ -110,16 +115,26 @@ export function TelemetryDashboard() {
             <MemoryPanel snapshot={snapshot} history={history} />
           </div>
           <div className="tm-col-4">
-            <ThermalPanel snapshot={snapshot} history={history} />
-          </div>
-          <div className="tm-col-4">
             <NetworkPanel snapshot={snapshot} history={history} />
           </div>
-          <div className="tm-col-7">
+          <div className="tm-col-4">
+            <DiskPanel snapshot={snapshot} history={history} />
+          </div>
+
+          <div className="tm-col-12 tm-group-label">
+            <span>Storage &amp; thermals</span>
+            <em>SMART, mounts and sensor channels</em>
+          </div>
+          <div className="tm-col-4">
+            <ThermalPanel snapshot={snapshot} history={history} />
+          </div>
+          <div className="tm-col-8">
             <StoragePanel snapshot={snapshot} />
           </div>
-          <div className="tm-col-5">
-            <DiskPanel snapshot={snapshot} history={history} />
+
+          <div className="tm-col-12 tm-group-label">
+            <span>Processes &amp; links</span>
+            <em>Top processes, WireGuard and Tailscale</em>
           </div>
           <div className="tm-col-7">
             <ProcessesPanel snapshot={snapshot} />
@@ -127,6 +142,7 @@ export function TelemetryDashboard() {
           <div className="tm-col-5">
             <VpnPanel snapshot={snapshot} />
           </div>
+
           <div className="tm-col-12">
             <SystemPanel
               host={host}

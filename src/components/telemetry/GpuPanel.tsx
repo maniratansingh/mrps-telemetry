@@ -71,7 +71,7 @@ export function GpuPanel({ host, snapshot, history }: GpuPanelProps) {
         <TelemetryChart
           series={[{ id: "gpu", label: "GPU", color: "var(--tm-gpu)", values: gpuHistory }]}
           timestamps={timestamps}
-          height={160}
+          height={110}
           min={0}
           unit="%"
           axisFormatter={(value) => `${Math.round(value)}%`}
@@ -137,6 +137,9 @@ export function GpuPanel({ host, snapshot, history }: GpuPanelProps) {
         <Stat label="VRAM total" value={formatBytes(gpu.vramTotalBytes)} hint="adapter capacity" />
       </div>
 
+      {snapshot.processes.gpu.length === 0 ? (
+        <p className="tm-inline-note">No GPU processes reported by the driver.</p>
+      ) : (
       <div className="tm-gpu-processes">
         <div className="tm-subsection-head">
           <div>
@@ -145,14 +148,7 @@ export function GpuPanel({ host, snapshot, history }: GpuPanelProps) {
           </div>
           <span className="tm-subsection-note">No command lines are exposed</span>
         </div>
-        {snapshot.processes.gpu.length === 0 ? (
-          <EmptyState
-            compact
-            title="No GPU processes reported"
-            description="The API returned an empty GPU process list."
-          />
-        ) : (
-          <div className="tm-mini-list">
+        <div className="tm-mini-list">
             {snapshot.processes.gpu.map((process) => (
               <div className="tm-mini-row" key={`${process.pid}-${process.name}`}>
                 <span className="tm-mono">{process.pid}</span>
@@ -167,9 +163,9 @@ export function GpuPanel({ host, snapshot, history }: GpuPanelProps) {
                 </span>
               </div>
             ))}
-          </div>
-        )}
+        </div>
       </div>
+      )}
     </TelemetryPanel>
   );
 }

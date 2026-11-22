@@ -22,7 +22,7 @@ export function DiskPanel({ snapshot, history }: DiskPanelProps) {
   return (
     <TelemetryPanel
       id="disk"
-      index="07"
+      index="05"
       title="Disk I/O"
       subtitle="Read and write activity across all devices"
       meta={

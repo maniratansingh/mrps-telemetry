@@ -84,7 +84,7 @@ export function TelemetryChart({
     return () => query.removeEventListener("change", update);
   }, []);
 
-  const height = largeDisplay ? Math.round(heightProp * 1.45) : heightProp;
+  const height = largeDisplay ? Math.round(heightProp * 1.15) : heightProp;
   const [hoverIndex, setHoverIndex] = React.useState<number | null>(null);
   const gradientId = React.useId().replace(/:/g, "");
   const count = timestamps.length;

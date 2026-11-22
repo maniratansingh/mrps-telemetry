@@ -40,6 +40,17 @@ mrps-telemetry status
 mrps-telemetry url
 ```
 
+## 4K real-time hierarchy
+
+- Compact hero and a three-card pulse strip; each of CPU, GPU and memory has its
+  own chart, colour and current value instead of three overlapping lines.
+- Real-time band comes first: CPU, graphics, memory, network and disk I/O.
+  Verified at 3840×2160: the last primary panel ends at 2066 px, above the 2160 px
+  fold.
+- Storage, thermals, processes, secure links and system are grouped below.
+- CPU core/thread detail is collapsible at 4K, network interfaces expand on demand,
+  and long tables scroll instead of stretching the row.
+
 ## Chart and display fixes
 
 - Removed per-frame SVG `d` interpolation; charts now update in discrete steps

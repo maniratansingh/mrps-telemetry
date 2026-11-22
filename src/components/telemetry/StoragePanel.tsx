@@ -90,7 +90,7 @@ export function StoragePanel({ snapshot }: StoragePanelProps) {
   return (
     <TelemetryPanel
       id="storage"
-      index="06"
+      index="07"
       title="Storage"
       subtitle="Detected block devices, mounts and SMART inventory"
       meta={

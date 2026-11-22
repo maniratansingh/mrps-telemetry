@@ -16,12 +16,13 @@ interface NetworkPanelProps {
 }
 
 export function NetworkPanel({ snapshot, history }: NetworkPanelProps) {
-  const [showAll, setShowAll] = React.useState(true);
+  const [showTable, setShowTable] = React.useState(false);
   const timestamps = historyTimestamps(history);
   const rxHistory = historyValues(history, "rx");
   const txHistory = historyValues(history, "tx");
   const network = snapshot.network;
-  const interfaces = visibleNetworkInterfaces(network.interfaces, showAll);
+  const primaryInterfaces = visibleNetworkInterfaces(network.interfaces, false);
+  const interfaces = visibleNetworkInterfaces(network.interfaces, true);
   const hasPacketCounters = network.interfaces.some(
     (entry) => entry.rxPackets !== undefined || entry.txPackets !== undefined,
   );
@@ -31,7 +32,7 @@ export function NetworkPanel({ snapshot, history }: NetworkPanelProps) {
   return (
     <TelemetryPanel
       id="network"
-      index="05"
+      index="04"
       title="Network"
       subtitle="Aggregate throughput and interface counters"
       meta={
@@ -85,13 +86,14 @@ export function NetworkPanel({ snapshot, history }: NetworkPanelProps) {
           <button
             type="button"
             className="tm-text-button"
-            onClick={() => setShowAll((value) => !value)}
-            aria-expanded={showAll}
+            onClick={() => setShowTable((value) => !value)}
+            aria-expanded={showTable}
           >
-            {showAll ? "Show primary" : `Show all ${network.interfaces.length}`}
+            {showTable ? "Hide interfaces" : `Show all ${network.interfaces.length}`}
           </button>
         </div>
 
+        {showTable ? (
         <div className="tm-table-shell">
           {interfaces.length > 0 ? (
             <table className="tm-table tm-network-table">
@@ -129,6 +131,18 @@ export function NetworkPanel({ snapshot, history }: NetworkPanelProps) {
             <p className="tm-inline-note">No network interfaces were returned by the API.</p>
           )}
         </div>
+        ) : (
+          <div className="tm-interface-summary">
+            {primaryInterfaces.map((entry) => (
+              <span key={entry.name} className={entry.state === "down" ? "tm-summary-down" : undefined}>
+                <i aria-hidden="true" />
+                <b className="tm-mono">{entry.name}</b>
+                <em>{entry.state}</em>
+                <em className="tm-mono">↓ {formatBitRate(entry.rxBytesPerSecond)}</em>
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className="tm-inline-meta">
           <span>{formatNumber(errors)} errors</span>

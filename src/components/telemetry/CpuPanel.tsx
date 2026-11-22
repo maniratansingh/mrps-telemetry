@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Activity, Cpu } from "lucide-react";
 import type { HostInfo, Snapshot } from "@/lib/telemetry/types";
 import type { HistoryPoint } from "@/lib/telemetry/types";
@@ -26,6 +27,15 @@ export function CpuPanel({ host, snapshot, history }: CpuPanelProps) {
   const cores = host?.spec.cpu.physicalCores ?? cpu.perCore.length;
   const threads = host?.spec.cpu.logicalThreads ?? cpu.perThread.length;
   const model = host?.spec.cpu.model ?? "Processor model not reported";
+  const [detailOpen, setDetailOpen] = React.useState(true);
+
+  React.useEffect(() => {
+    const query = window.matchMedia("(min-width: 2000px)");
+    const update = () => setDetailOpen(!query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
 
   return (
     <TelemetryPanel
@@ -50,7 +60,7 @@ export function CpuPanel({ host, snapshot, history }: CpuPanelProps) {
         <TelemetryChart
           series={[{ id: "cpu", label: "CPU utilisation", color: "var(--tm-cpu)", values: cpuHistory }]}
           timestamps={timestamps}
-          height={190}
+          height={150}
           min={0}
           unit="%"
           axisFormatter={(value) => `${Math.round(value)}%`}
@@ -64,6 +74,16 @@ export function CpuPanel({ host, snapshot, history }: CpuPanelProps) {
         <Stat label="Load average" value={formatLoadAverages(cpu.loadAverage)} hint="1m / 5m / 15m" />
         <Stat label="Processes" value={formatNumber(cpu.processCount)} hint={`${threads} logical threads`} />
       </div>
+
+      <details
+        className="tm-cpu-details"
+        open={detailOpen}
+        onToggle={(event) => setDetailOpen(event.currentTarget.open)}
+      >
+        <summary>
+          <span>Core &amp; thread detail</span>
+          <span className="tm-mono">{cores} cores · {threads} threads</span>
+        </summary>
 
       <div className="tm-subsection">
         <div className="tm-subsection-head">
@@ -121,6 +141,8 @@ export function CpuPanel({ host, snapshot, history }: CpuPanelProps) {
           )}
         </div>
       </div>
+
+      </details>
 
       <p className="tm-panel-note">
         <Cpu size={13} strokeWidth={1.8} aria-hidden="true" />
