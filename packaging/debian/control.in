@@ -5,7 +5,7 @@ Priority: optional
 Architecture: all
 Installed-Size: @SIZE@
 Depends: nodejs (>= 18)
-Recommends: smartmontools, wireguard-tools
+Recommends: smartmontools, wireguard-tools, lm-sensors, pciutils
 Maintainer: Mani Ratan Pratap Singh <email@mrps.in>
 Homepage: https://mrps.in
 Description: MRPS live server telemetry API and dashboard

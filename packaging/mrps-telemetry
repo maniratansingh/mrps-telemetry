@@ -3,6 +3,72 @@ set -e
 
 UNITS="mrps-telemetry-api.service mrps-telemetry-web.service"
 
+port_from() {
+  # shellcheck disable=SC1090
+  . "$1" 2>/dev/null || true
+  echo "${PORT:-$2}"
+}
+
+have() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+check_tool() {
+  name="$1"
+  purpose="$2"
+  remedy="$3"
+  if have "$name"; then
+    printf "  [ok]      %-12s %s\n" "$name" "$purpose"
+  else
+    printf "  [missing] %-12s %s\n" "$name" "$purpose"
+    printf "            fix: %s\n" "$remedy"
+  fi
+}
+
+doctor() {
+  PORT_API="$(port_from /etc/default/mrps-telemetry-api 43871)"
+  PORT_WEB="$(port_from /etc/default/mrps-telemetry-web 4310)"
+
+  echo "MRPS Telemetry — readiness check"
+  echo
+  echo "Runtime and optional tools:"
+  check_tool node "Node.js runtime (required)" "sudo apt install nodejs"
+  check_tool smartctl "SMART disk health" "sudo apt install smartmontools"
+  check_tool wg "WireGuard status" "sudo apt install wireguard-tools"
+  check_tool tailscale "Tailscale status" "install Tailscale, then: tailscale up"
+  check_tool nvidia-smi "NVIDIA GPU metrics" "install the NVIDIA driver"
+  check_tool sensors "lm-sensors CLI" "sudo apt install lm-sensors"
+  check_tool lspci "PCI / GPU model names" "sudo apt install pciutils"
+
+  echo
+  echo "Services:"
+  for unit in $UNITS; do
+    state="$(systemctl is-active "$unit" 2>/dev/null || true)"
+    printf "  [%s] %s\n" "${state:-unknown}" "$unit"
+  done
+
+  echo
+  echo "Endpoints:"
+  if curl -fsS --max-time 4 "http://127.0.0.1:${PORT_API}/api/v1/health" >/dev/null 2>&1; then
+    printf "  [ok]   API       http://127.0.0.1:%s\n" "$PORT_API"
+  else
+    printf "  [down] API       http://127.0.0.1:%s\n" "$PORT_API"
+    echo "         check: journalctl -u mrps-telemetry-api -n 50"
+  fi
+
+  if curl -fsS --max-time 4 "http://127.0.0.1:${PORT_WEB}/healthz" >/dev/null 2>&1; then
+    printf "  [ok]   Dashboard http://127.0.0.1:%s\n" "$PORT_WEB"
+  else
+    printf "  [down] Dashboard http://127.0.0.1:%s\n" "$PORT_WEB"
+    echo "         check: journalctl -u mrps-telemetry-web -n 50"
+  fi
+
+  IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+  echo
+  echo "Open: http://${IP:-127.0.0.1}:${PORT_WEB}/"
+  echo "Per-feature reasons and remedies: System → System readiness in the dashboard."
+}
+
 case "${1:-status}" in
   status)
     systemctl --no-pager status $UNITS
@@ -16,11 +82,14 @@ case "${1:-status}" in
     ;;
   url)
     IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
-    PORT="$(. /etc/default/mrps-telemetry-web 2>/dev/null; echo "${PORT:-4310}")"
+    PORT="$(port_from /etc/default/mrps-telemetry-web 4310)"
     echo "http://${IP:-127.0.0.1}:${PORT}/"
     ;;
+  doctor)
+    doctor
+    ;;
   *)
-    echo "usage: mrps-telemetry [status|restart|logs|url]" >&2
+    echo "usage: mrps-telemetry [status|restart|logs|url|doctor]" >&2
     exit 1
     ;;
 esac

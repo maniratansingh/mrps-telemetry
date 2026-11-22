@@ -40,6 +40,26 @@ mrps-telemetry status
 mrps-telemetry url
 ```
 
+## Readiness, not guesswork
+
+The dashboard's **System → System readiness** section lists every feature as
+**Ready / Limited / Missing**, with the exact reason and a copyable remedy:
+
+- Node.js runtime, CPU collector, GPU metrics
+- SMART health and how many devices actually reported
+- temperature and fan channels
+- WireGuard and Tailscale, including permission failures
+- optional tools (`smartctl`, `wg`, `tailscale`, `nvidia-smi`, `lspci`, `sensors`)
+
+The same report is printed at install time and is always available:
+
+```bash
+mrps-telemetry doctor
+```
+
+No missing sensor, SMART device, GPU metric, peer or permission is silently shown
+as zero.
+
 ## What is inside
 
 - API on `:43871` — GET-only JSON, SSE stream, 500 ms sampling.
@@ -50,6 +70,7 @@ mrps-telemetry url
   devices, sensors, fans, WireGuard, Tailscale and external tools.
 - Radial gauges, storage rings, 60 s/120 s chart range, per-thread matrix.
 - Read-only: no controls, no shell endpoints, no credential storage.
+- No Python in production: the APT repository is served by a small Node static server.
 
 ## Notes
 

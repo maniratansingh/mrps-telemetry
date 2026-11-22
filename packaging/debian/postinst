@@ -27,4 +27,9 @@ else
   echo "mrps-telemetry: dashboard failed to start. Check: journalctl -u mrps-telemetry-web" >&2
 fi
 
+# Show the same clear readiness report the CLI provides.
+if [ -x /usr/bin/mrps-telemetry ]; then
+  /usr/bin/mrps-telemetry doctor 2>/dev/null || true
+fi
+
 exit 0

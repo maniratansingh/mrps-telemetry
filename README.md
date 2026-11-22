@@ -120,6 +120,36 @@ Restart the relevant service after editing. For a single-host deployment, settin
 `HOST=127.0.0.1` closes the API to the network while keeping the dashboard proxy
 working.
 
+## Dependencies and readiness
+
+Required: `nodejs (>= 18)`.
+
+Optional, feature-by-feature:
+
+| Feature | Needs | If missing |
+| --- | --- | --- |
+| SMART health | `smartctl` (`smartmontools`) | SMART marked missing with the install command |
+| WireGuard | `wg` (`wireguard-tools`) + privilege | "Limited" with permission or config reason |
+| Tailscale | `tailscale` | "Missing" with the setup hint |
+| GPU metrics | NVIDIA driver / `nvidia-smi` | Vendor detected, metrics labeled unavailable |
+| Sensors / fans | hwmon drivers, `lm-sensors` | "No sensors exposed" with driver hint |
+| GPU model names | `lspci` (`pciutils`) | Generic vendor name instead of a model |
+
+```bash
+sudo apt install smartmontools wireguard-tools lm-sensors pciutils
+```
+
+The dashboard's **System → System readiness** section lists every check as
+**Ready / Limited / Missing**, with the exact reason and a copyable remedy. The
+package prints the same report at install time, and it is always available as:
+
+```bash
+mrps-telemetry doctor
+```
+
+Nothing is silently zeroed: a missing sensor, SMART device, GPU metric, peer or
+permission is shown as unavailable with its cause.
+
 ## Build from source
 
 Requirements: Node.js 22+, npm, and a Debian/Ubuntu host with `dpkg-deb` and

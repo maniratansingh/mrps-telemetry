@@ -208,11 +208,109 @@ function buildCapabilities(data) {
   const tailscaleState = tailscale.backend_state ?? tailscale.backendState ?? null;
   const tools = systemTools();
   const model = deviceTreeModel();
+  const smartRaw = data.smart || {};
+  const wireguardRaw = data.wireguard || {};
+  const tailscaleRaw = data.tailscale || {};
+  const checks = [];
+  const addCheck = (id, label, status, detail, remedy = null) => {
+    checks.push({ id, label, status, detail, remedy });
+  };
+  const permissionIssue = /permission|sudo|denied|not permitted/i.test(
+    [wireguardRaw.error, smartRaw.error, ...smartDevices.map(device => device.error)]
+      .filter(Boolean).join(' ')
+  );
   const cpuModel = cpu.model || os.cpus()[0]?.model || 'Unknown CPU';
   const cpuVendor = /AMD/i.test(cpuModel) ? 'AMD'
     : /Intel/i.test(cpuModel) ? 'Intel'
       : /ARM|aarch64|Cortex|Apple|Broadcom/i.test(cpuModel) ? 'ARM'
         : null;
+
+  addCheck('node', 'Node.js runtime', 'ok', process.version, null);
+  addCheck('cpu', 'CPU collector', 'ok', `${cpuVendor ?? 'CPU'} · ${cpu.physical_cores ?? '?'} cores / ${cpu.logical_threads ?? os.cpus().length} threads`, null);
+
+  if (gpuData) {
+    addCheck('gpu', 'GPU metrics', 'ok', `${gpuData.model || 'GPU'} · driver ${gpuData.driver_version || 'reported'}`, null);
+  } else if (detectedGpu) {
+    addCheck('gpu', 'GPU metrics', 'warn', `${detectedGpu.vendor} adapter detected; no metric source`, 'Detailed GPU metrics require nvidia-smi. AMD and Intel adapters are detected but not sampled.');
+  } else {
+    addCheck('gpu', 'GPU', 'missing', 'No GPU detected', 'This is normal on headless servers and Raspberry Pi.');
+  }
+
+  if (!tools.smartctl) {
+    addCheck('smart', 'SMART health', 'missing', 'smartctl is not installed', 'sudo apt install smartmontools');
+  } else if (smartDevices.length === 0) {
+    addCheck('smart', 'SMART health', 'warn', smartRaw.lastError || 'No SMART-capable devices reported', 'Check that disks are visible to smartctl and that the service can read them.');
+  } else {
+    const failed = smartDevices.filter(device => device.error).length;
+    addCheck(
+      'smart',
+      'SMART health',
+      failed ? 'warn' : 'ok',
+      `${smartDevices.length - failed}/${smartDevices.length} devices reported`,
+      failed ? 'Some devices do not expose SMART (USB bridges, RAID controllers).' : null
+    );
+  }
+
+  addCheck(
+    'thermal',
+    'Temperature sensors',
+    sensors.length ? 'ok' : 'warn',
+    sensors.length ? `${sensors.length} sensors reported` : 'No temperature sensors exposed',
+    sensors.length ? null : 'Load the platform hwmon driver (coretemp, k10temp, nct6775).'
+  );
+  addCheck(
+    'fans',
+    'Fan sensors',
+    fans.length ? 'ok' : 'warn',
+    fans.length ? `${fans.length} channels reported` : 'No fan channels exposed',
+    fans.length ? null : 'Fan reporting needs the motherboard Super I/O driver.'
+  );
+
+  if (!tools.wg) {
+    addCheck('wireguard', 'WireGuard', 'missing', 'wg is not installed', 'sudo apt install wireguard-tools');
+  } else if (wireguardRaw.status !== 'ok') {
+    addCheck(
+      'wireguard',
+      'WireGuard',
+      'warn',
+      wireguardRaw.error || wireguardRaw.message || 'wg status unavailable',
+      permissionIssue
+        ? 'Grant the API permission to run wg; the packaged service runs as root.'
+        : 'Check that a WireGuard interface is configured.'
+    );
+  } else {
+    addCheck(
+      'wireguard',
+      'WireGuard',
+      wireguard.length ? 'ok' : 'warn',
+      wireguard.length ? `${wireguard.length} interface reported` : 'No interface configured',
+      wireguard.length ? null : 'Bring up a WireGuard interface (wg-quick up …).'
+    );
+  }
+
+  if (!tools.tailscale) {
+    addCheck('tailscale', 'Tailscale', 'missing', 'tailscale is not installed', 'Install Tailscale and run: tailscale up');
+  } else if (tailscaleRaw.status !== 'ok') {
+    addCheck(
+      'tailscale',
+      'Tailscale',
+      'warn',
+      tailscaleRaw.error || 'tailscale status unavailable',
+      'Check tailscale status and permissions.'
+    );
+  } else {
+    addCheck(
+      'tailscale',
+      'Tailscale',
+      tailscaleState ? 'ok' : 'warn',
+      tailscaleState || 'not connected',
+      tailscaleState ? null : 'Run: tailscale up'
+    );
+  }
+
+  if (permissionIssue) {
+    addCheck('permissions', 'Permissions', 'warn', 'One or more privileged collectors were denied access', 'Run the API as root or grant sudo for smartctl and wg.');
+  }
 
   return {
     platform: {
@@ -251,7 +349,12 @@ function buildCapabilities(data) {
       state: tailscaleState,
       tool: tools.tailscale
     },
-    tools
+    tools,
+    checks,
+    summary: checks.reduce(
+      (total, check) => ({ ...total, [check.status]: (total[check.status] || 0) + 1 }),
+      { ok: 0, warn: 0, missing: 0 }
+    )
   };
 }
 

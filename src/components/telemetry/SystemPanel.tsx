@@ -166,6 +166,37 @@ export function SystemPanel({ host, snapshot, health, apiBase, pollIntervalMs }:
         </div>
       </div>
 
+      {caps?.checks?.length ? (
+        <div className="tm-readiness">
+          <div className="tm-readiness-head">
+            <div>
+              <span className="tm-kicker">System readiness</span>
+              <h3>What this host can and cannot report</h3>
+            </div>
+            <div className="tm-readiness-summary">
+              <span className="tm-check-pill tm-check-pill-ok">{caps.summary.ok} ready</span>
+              <span className="tm-check-pill tm-check-pill-warn">{caps.summary.warn} limited</span>
+              <span className="tm-check-pill tm-check-pill-missing">{caps.summary.missing} missing</span>
+            </div>
+          </div>
+          <ul className="tm-check-list">
+            {caps.checks.map((check) => (
+              <li key={check.id} className={`tm-check tm-check-${check.status}`}>
+                <span className="tm-check-dot" aria-hidden="true" />
+                <div className="tm-check-body">
+                  <strong>{check.label}</strong>
+                  <p>{check.detail}</p>
+                  {check.remedy ? <code>{check.remedy}</code> : null}
+                </div>
+                <span className="tm-check-state">
+                  {check.status === "ok" ? "Ready" : check.status === "warn" ? "Limited" : "Missing"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       {caps ? (
         <div className="tm-capabilities" aria-label="Detected system capabilities">
           <Capability

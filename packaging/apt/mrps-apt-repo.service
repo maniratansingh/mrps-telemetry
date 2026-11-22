@@ -1,13 +1,17 @@
 [Unit]
-Description=Serve the local MRPS apt repository
+Description=Serve the local MRPS APT repository (Node)
 After=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=%h/apt-repo
-ExecStart=/usr/bin/python3 -m http.server 8090 --bind 0.0.0.0 --directory %h/apt-repo
+WorkingDirectory=%h/apt-repo-server
+ExecStart=%h/nodejs/bin/node %h/apt-repo-server/repo-server.mjs
+Environment=PORT=8090
+Environment=ROOT=%h/apt-repo
 Restart=always
 RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
 
 [Install]
 WantedBy=default.target

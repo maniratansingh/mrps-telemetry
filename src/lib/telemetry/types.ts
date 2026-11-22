@@ -28,6 +28,16 @@ export interface HostNetworkInterface {
   speedMbps?: number;
 }
 
+export type CapabilityStatus = "ok" | "warn" | "missing";
+
+export interface CapabilityCheck {
+  id: string;
+  label: string;
+  status: CapabilityStatus;
+  detail: string;
+  remedy: string | null;
+}
+
 export interface HostCapabilities {
   platform: {
     os: string;
@@ -54,6 +64,8 @@ export interface HostCapabilities {
   wireguard: { present: boolean; tool: boolean; interfaces: number };
   tailscale: { present: boolean; state: string | null; tool: boolean };
   tools: Record<string, boolean>;
+  checks: CapabilityCheck[];
+  summary: { ok: number; warn: number; missing: number };
 }
 
 export interface HostInfo {
