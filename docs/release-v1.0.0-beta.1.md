@@ -77,6 +77,14 @@ span is defined now, and the compact layout starts at 1600 px so a 4K display at
 - CPU core/thread detail is collapsible at 4K, network interfaces expand on demand,
   and long tables scroll instead of stretching the row.
 
+## Interaction and material polish
+
+- Press feedback now fires on pointer-down at 0.97 scale over 100 ms; tap delay removed with `touch-action`.
+- Specular top edges on the top bar, status card and vitals; stronger blur/saturation on floating chrome only.
+- Optical type sizing, balanced headings, 11 px label floor, tabular figures.
+- `prefers-reduced-motion`, `prefers-reduced-transparency` and `prefers-contrast` are handled.
+- Axe re-run after the fixes: 0 violations desktop and mobile; 0 controls below 44 px.
+
 ## Chart and display fixes
 
 - Removed per-frame SVG `d` interpolation; charts now update in discrete steps
